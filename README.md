@@ -1,26 +1,27 @@
 # not-messy.docs
 
-Skills that keep project docs honest: conversation in, spec + ADR + glossary out, docs updated after implementation.
+> Four agent skills that turn a design conversation into specs, ADRs and a glossary, then sync the docs after implementation.
 
-- **Turn conversation into a spec** → `to-spec` synthesizes what you already discussed into an implementation-ready spec set, split by code seams and gated by a verification checklist.
-- **Record decisions and terms** → `to-adr` captures hard-to-reverse architectural choices; `to-context` keeps the domain glossary precise and free of implementation details.
-- **Keep docs from rotting** → `update-docs` writes session statuses, regenerates the spec and PRD indexes, and moves finished PRDs to DONE — after you run the verification commands, not before.
+Docs are born in conversation and rot after code ships. An AI session discusses the design in chat, implements it, and leaves the docs frozen at what they said last week — the next session reads a stale spec and builds on wrong assumptions. This pack turns documentation into a pipeline, not an afterthought: the conversation becomes a spec, irreversible decisions become ADRs, drifting terms get a glossary, and after implementation the docs are regenerated to match what was built, not what was planned.
 
-## Why
+## The four skills
 
-AI coding sessions move fast. The design discussion happens in chat, the agent implements it, and the docs stay frozen at whatever they said last week. Three weeks later a new session reads a stale spec and builds on the wrong assumptions.
+| Skill | Does |
+|---|---|
+| `to-spec` | Synthesizes the discussed context into an implementation-ready spec set: one spec per code seam, grouped into waves, gated by a verification checklist. Asks you to confirm the seam map before writing. |
+| `to-adr` | Captures hard-to-reverse architectural choices with rejected alternatives, so they do not look arbitrary in six months. |
+| `to-context` | Keeps the domain glossary (`CONTEXT.md`) precise and free of implementation details. |
+| `update-docs` | After the verification commands ran: writes the session status, regenerates the spec and PRD indexes from spec frontmatter, moves finished PRDs to `.docs/PRDs/DONE/`. |
 
-The fix is to treat documentation as a pipeline, not an afterthought. First the conversation becomes a spec: six questions answered, seams mapped, acceptance criteria testable. Decisions that would look arbitrary in six months become ADRs with rejected alternatives. Terms that drift get sharpened in a glossary. After implementation, the docs are updated to match what was built — not what was planned.
+The index generator (`update-docs/scripts/docs-index.mjs`) is a reference implementation: it assumes one repo's layout (`.docs/status.json`, `.docs/SPECS/README.md`, `.docs/sessions/`) and hardcoded index rules, so outside that layout its manual steps port but `--write`/`--check` regeneration does not.
 
-So docs do not rot after the code ships. The spec index, the PRD index, and the current status are regenerated from the same files the agent writes during the work.
-
-## How it works
+## Pipeline
 
 ```
 conversation ──> to-spec ──> to-adr ───────┐
                     │          to-context ──┤
                     v                       v
-               spec set (.docs/SPECS)    ADRs + glossary
+               spec set (.docs/SPECS)   ADRs + glossary
                     │                       │
                     └──────────> implement ─┘
                                      │
@@ -30,10 +31,10 @@ conversation ──> to-spec ──> to-adr ───────┐
                               -> PRDs/DONE
 ```
 
-1. You discuss a feature. `to-spec` synthesizes the context into specs — one spec per seam, grouped into waves — and asks you to confirm the seam map before writing.
-2. Decisions that are hard to reverse go to `to-adr`; resolved or conflicting terms go to `to-context` (`CONTEXT.md`).
+1. You discuss a feature. `to-spec` turns the discussion into specs — one per seam, grouped into waves — and asks you to confirm the seam map before writing.
+2. Hard-to-reverse decisions go to `to-adr`; resolved or conflicting terms go to `to-context`.
 3. The agent implements the specs.
-4. `update-docs` records the session, rebuilds the indexes from spec frontmatter and status files, moves finished PRDs, and commits the doc paths — but only after the verification commands ran.
+4. `update-docs` records the session, rebuilds the indexes from the same files the agent wrote, moves finished PRDs — after the verification commands ran, not before.
 
 ## Install
 
@@ -47,22 +48,15 @@ Copy the four skill folders into your agent skills directory:
   update-docs/
 ```
 
-Works with any agent that reads SKILL.md files. In `pi`, invoke them as `/skill:to-spec`, `/skill:to-adr`, `/skill:to-context`, `/skill:update-docs`.
+Works with any agent that reads `SKILL.md` files. In `pi`, invoke them as `/skill:to-spec`, `/skill:to-adr`, `/skill:to-context`, `/skill:update-docs`.
 
 ## Quick example
 
-You finished a design discussion about a billing module. Say:
+You finished a design discussion about a billing module. Invoke `/skill:to-spec`. It produces `.docs/SPECS/billing/refund-seam.md` (status `ready-for-agent`) with locked decisions, changed files, verification commands, and out-of-scope items. After implementation, run `/skill:update-docs`: it writes the session status, regenerates `.docs/CURRENT_STATUS.md` and `.docs/SPECS/README.md` from the sources, and moves the finished PRD under `.docs/PRDs/DONE/`.
 
-```
-/skill:to-spec
-```
+## Contributing
 
-It produces `.docs/SPECS/billing/refund-seam.md` (status `ready-for-agent`) with locked decisions, changed files, verification commands, and out-of-scope items. During the follow-up, say `/skill:to-adr` on the decision to store refunds as events. After implementation, run `/skill:update-docs` — it writes the session status, regenerates `.docs/CURRENT_STATUS.md` and `.docs/SPECS/README.md` from the sources, and moves the finished PRD under `.docs/PRDs/DONE/`.
-
-## Honest status
-
-- `to-spec`, `to-adr`, `to-context`: working, used on real projects.
-- `update-docs`: **partially project-specific.** Its index generator, `update-docs/scripts/docs-index.mjs`, exists and runs, but it embeds conventions from one repo: it requires `.docs/status.json`, `.docs/SPECS/README.md`, and `.docs/sessions/` to exist, and its index section rules are hardcoded to that repo's areas and streams. Outside a repo with the same layout, the manual steps (status file, PRD index, DONE moves) still work; the `--write`/`--check` regeneration does not port as-is. Treat the script as a reference implementation, not a universal tool.
+File issues in the repository's issue tracker. Each skill folder carries its own `SKILL.md`; changes to the pack are verified by running the skills against a scratch repo and checking the regenerated indexes.
 
 ## License
 
