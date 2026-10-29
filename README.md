@@ -1,6 +1,6 @@
 # not-messy.docs
 
-> Four agent skills that turn a design conversation into specs, ADRs and a glossary, then sync the docs after implementation.
+Agent skills that turn design conversations into specs, ADRs and a glossary, then sync the docs after implementation.
 
 Docs are born in conversation and rot after code ships. An AI session discusses the design in chat, implements it, and leaves the docs frozen at what they said last week — the next session reads a stale spec and builds on wrong assumptions. This pack turns documentation into a pipeline, not an afterthought: the conversation becomes a spec, irreversible decisions become ADRs, drifting terms get a glossary, and after implementation the docs are regenerated to match what was built, not what was planned.
 
