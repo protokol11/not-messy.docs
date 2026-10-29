@@ -36,6 +36,15 @@ conversation ──> to-spec ──> to-adr ───────┐
 3. The agent implements the specs.
 4. `update-docs` records the session, rebuilds the indexes from the same files the agent wrote, moves finished PRDs — after the verification commands ran, not before.
 
+## Quick start
+
+```sh
+git clone https://github.com/protokol11/not-messy.docs.git
+cp -r not-messy.docs/to-spec not-messy.docs/to-adr not-messy.docs/to-context not-messy.docs/update-docs ~/.agents/skills/
+```
+
+In pi: `/skill:to-spec` turns the conversation into a spec. Details below.
+
 ## Install
 
 Copy the four skill folders into your agent skills directory:
